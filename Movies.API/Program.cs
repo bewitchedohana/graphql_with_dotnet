@@ -1,5 +1,8 @@
+using GraphQL;
 using Microsoft.EntityFrameworkCore;
 using Movies.API.Data;
+using Movies.API.GraphQL.Queries;
+using Movies.API.GraphQL.Schemas;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,13 @@ string connectionString = builder.Configuration.GetConnectionString("MoviesConne
 builder.Services.AddDbContext<MoviesDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+builder.Services.AddScoped<MovieQuery>();
+builder.Services.AddScoped<MovieSchema>();
+
+builder.Services.AddGraphQL(options =>
+    options.AddGraphTypes()
+        .AddSystemTextJson());
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -24,6 +34,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseGraphQL<MovieSchema>();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
